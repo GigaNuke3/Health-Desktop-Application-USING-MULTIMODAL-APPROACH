@@ -8,7 +8,7 @@
 
 **Architecture:** Three processes. A sandboxed React renderer talks only to `window.api`; the main process owns windows, dialogs and shell actions and forwards everything else; a `utilityProcess` "knowledge service" owns the database, vault scanning, indexing, retrieval and Ollama. All pure logic (parse, chunk, diff, retrieve, citations) lives in small modules tested without Electron windows.
 
-**Tech Stack:** Electron + Electron Forge (Vite + TypeScript template), React, better-sqlite3, sqlite-vec, zod, yaml, react-markdown + remark-gfm, lucide-react, Vitest, Playwright.
+**Tech Stack:** Electron + Electron Forge (`vite` template with `--typescript`), React, better-sqlite3, sqlite-vec, zod, yaml, react-markdown + remark-gfm, lucide-react, Vitest, Playwright.
 
 **Spec:** `docs/superpowers/specs/2026-10-20-second-brain-core-loop-design.md`
 
@@ -52,7 +52,7 @@
 
 ```bash
 cd /home/eco/Health-Desktop-Application-USING-MULTIMODAL-APPROACH
-npx create-electron-app@8.0.1 app --template=vite-typescript
+npx create-electron-app@8.0.1 app --template vite --typescript --skip-git
 cd app
 npm install better-sqlite3@13 sqlite-vec@0.1.9 zod@4 yaml@2 react@19 react-dom@19 react-markdown@10 remark-gfm@4 lucide-react@1
 npm install -D vitest@5 @vitejs/plugin-react @types/better-sqlite3 @types/react @types/react-dom @electron/rebuild
