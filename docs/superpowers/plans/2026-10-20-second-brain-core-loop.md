@@ -41,7 +41,7 @@
 
 **Files:**
 - Create: `app/` via the Forge template
-- Modify: `forge.config.ts`, `vite.main.config.ts`, `package.json`, `src/main.ts` → move to `src/main/main.ts`, `src/preload.ts` → `src/preload/preload.ts`
+- Modify: `forge.config.mts`, `vite.main.config.mts`, `package.json`, `src/main.ts` → move to `src/main/main.ts`, `src/preload.ts` → `src/preload/preload.ts`
 - Create: `src/main/security.ts`, `src/service/service.ts` (stub that logs `ready`), `vitest.config.ts`
 - Test: `tests/unit/security.test.ts`
 
@@ -63,8 +63,8 @@ Expected: `npm start` opens the template window.
 - [ ] **Step 2: Restructure and configure**
 
 - Move entries to `src/main/main.ts`, `src/preload/preload.ts`, `src/renderer/` (index.html, `main.tsx`, `App.tsx` rendering "Second Brain").
-- `forge.config.ts`: Vite plugin `build` gets a third entry `{ entry: 'src/service/service.ts', config: 'vite.main.config.ts', target: 'main' }`. Entry file names must differ: Forge names each bundle after its entry's basename, so two `index.ts` entries would overwrite each other in `.vite/build/`. `package.json` `main` is `.vite/build/main.js`; set `productName: "Second Brain"` and `name: "second-brain"`.
-- `vite.main.config.ts`: `build.rollupOptions.external: ['better-sqlite3', 'sqlite-vec']`.
+- `forge.config.mts`: Vite plugin `build` gets a third entry `{ entry: 'src/service/service.ts', config: 'vite.main.config.mts', target: 'main' }`. Entry file names must differ: Forge names each bundle after its entry's basename, so two `index.ts` entries would overwrite each other in `.vite/build/`. `package.json` `main` is `.vite/build/main.cjs`; set `productName: "Second Brain"` and `name: "second-brain"`.
+- `vite.main.config.mts`: `build.rollupOptions.external: ['better-sqlite3', 'sqlite-vec']`.
 - Renderer Vite config adds `@vitejs/plugin-react`.
 - `package.json` scripts: `"test": "ELECTRON_RUN_AS_NODE=1 electron ./node_modules/vitest/vitest.mjs run"`, `"postinstall": "electron-rebuild -f -o better-sqlite3"`.
 - `vitest.config.ts`: `environment: 'node'`, `include: ['tests/**/*.test.ts']`, `exclude: ['tests/e2e/**']`.
@@ -769,7 +769,7 @@ test('watcher fires once per burst', async () => { /* write 5 files in a temp di
 **Interfaces:**
 - Consumes: service protocol (Task 13), `PUBLIC_METHODS`/`EVENTS` (Task 2), `hardenWindow` (Task 1).
 - Produces:
-  - `service-host.ts`: `startServiceHost(opts: { dbPath: string; onEvent: (event: string, payload: unknown) => void }): ServiceHost` with `call(method: string, input: unknown): Promise<Result<unknown>>` and `dispose(): void`. Forks with `utilityProcess.fork(path.join(__dirname, 'service.js'))`. On unexpected exit: emit `service:status { state: 'reconnecting' }`, restart after 1000 ms, fail calls in flight with `INTERNAL` "Service restarted", emit `service:status { state: 'ready' }` on `ready`.
+  - `service-host.ts`: `startServiceHost(opts: { dbPath: string; onEvent: (event: string, payload: unknown) => void }): ServiceHost` with `call(method: string, input: unknown): Promise<Result<unknown>>` and `dispose(): void`. Forks with `utilityProcess.fork(path.join(__dirname, 'service.cjs'))`. On unexpected exit: emit `service:status { state: 'reconnecting' }`, restart after 1000 ms, fail calls in flight with `INTERNAL` "Service restarted", emit `service:status { state: 'ready' }` on `ready`.
   - `obsidian.ts`: `obsidianUri(absPath: string): string` = `'obsidian://open?path=' + encodeURIComponent(absPath)`.
   - `ipc.ts`: `registerIpc(host: ServiceHost, win: BrowserWindow): void`. One `ipcMain.handle('api', (e, method, input))`: reject unless `e.senderFrame` belongs to `win`'s web contents and the URL is the app origin. Main-owned methods: `vault.choose` (`dialog.showOpenDialog({ properties: ['openDirectory'] })`, count `.md` files with the same skip rules as `scanVault`, remember the path in a module variable, return `VaultPreview`), `vault.confirm` (call internal `vault.set` with the remembered path; `INVALID_INPUT` if none), `note.openInObsidian` (internal `note.resolvePath`, then `shell.openExternal(obsidianUri(path))`), `data.revealDb` (`shell.showItemInFolder(dbPath)`). Everything else in `PUBLIC_METHODS` is forwarded to the host; anything else → `UNKNOWN_METHOD`. Service events are forwarded with `win.webContents.send('event', name, payload)`.
   - `preload/preload.ts`: `contextBridge.exposeInMainWorld('api', { invoke(method, input), on(event, cb): () => void })`; `invoke` refuses names not in `PUBLIC_METHODS`, `on` refuses names not in `EVENTS`, and the callback receives only the payload (never the `IpcRendererEvent`). Imports only `electron` and `src/shared/ipc-names.ts`.
@@ -919,7 +919,7 @@ test('index → ask → cite → edit → delete', async () => {
 
 - [ ] **Step 2: Run it** — `npm test -- core-loop` → PASS.
 
-- [ ] **Step 3: Make the packaged app run.** The E2E test needs a production build, and Forge's Vite plugin does not copy external native modules into the package. In `forge.config.ts`: add `@electron-forge/plugin-auto-unpack-natives`, and a `hooks.packageAfterCopy(config, buildPath)` that copies `better-sqlite3`, `bindings`, `file-uri-to-path`, `sqlite-vec` and `sqlite-vec-linux-x64` from `node_modules/` to `buildPath/node_modules/`. Set `packagerConfig.executableName: 'second-brain'`. Run `npm run package` → `out/Second Brain-linux-x64/second-brain` starts and reaches Onboarding.
+- [ ] **Step 3: Make the packaged app run.** The E2E test needs a production build, and Forge's Vite plugin does not copy external native modules into the package. In `forge.config.mts`: add `@electron-forge/plugin-auto-unpack-natives`, and a `hooks.packageAfterCopy(config, buildPath)` that copies `better-sqlite3`, `bindings`, `file-uri-to-path`, `sqlite-vec` and `sqlite-vec-linux-x64` from `node_modules/` to `buildPath/node_modules/`. Set `packagerConfig.executableName: 'second-brain'`. Run `npm run package` → `out/Second Brain-linux-x64/second-brain` starts and reaches Onboarding.
 
 - [ ] **Step 4: Write the E2E smoke test** (`npm install -D @playwright/test@1.64`; run `npm run package` before it)
 
