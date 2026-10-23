@@ -1,0 +1,58 @@
+{
+  "name": "second-brain",
+  "productName": "Second Brain",
+  "version": "1.0.0",
+  "private": true,
+  "description": "My Electron application description",
+  "keywords": [],
+  "license": "MIT",
+  "author": {
+    "name": "eco",
+    "email": "gorospeedilcon@gmail.com"
+  },
+  "main": ".vite/build/main.cjs",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "release": "electron-forge release",
+    "lint": "oxlint && oxfmt --check",
+    "lint:fix": "oxlint --fix && oxfmt --write",
+    "typecheck": "tsc --noEmit",
+    "test": "ELECTRON_RUN_AS_NODE=1 electron ./node_modules/vitest/vitest.mjs run"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^8.0.1",
+    "@electron-forge/maker-deb": "^8.0.1",
+    "@electron-forge/maker-rpm": "^8.0.1",
+    "@electron-forge/maker-squirrel": "^8.0.1",
+    "@electron-forge/maker-zip": "^8.0.1",
+    "@electron-forge/plugin-auto-unpack-natives": "^8.0.1",
+    "@electron-forge/plugin-fuses": "^8.0.1",
+    "@electron-forge/plugin-vite": "^8.0.1",
+    "@electron/fuses": "^2.1.3",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/electron-squirrel-startup": "^1.0.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "45.0.0",
+    "oxfmt": "^0.41.0",
+    "oxlint": "^1.89.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "electron-squirrel-startup": "^1.0.1",
+    "lucide-react": "^1.61.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "sqlite-vec": "^0.1.9",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
+  }
+}
