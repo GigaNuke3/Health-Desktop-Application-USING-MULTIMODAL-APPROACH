@@ -27,10 +27,10 @@ export interface ParsedNote {
   raw: string;
 }
 
-type Line = { text: string; start: number; end: number };
+export type Line = { text: string; start: number; end: number };
 
 // Offsets index `raw`, so \r\n counts as two characters.
-function splitLines(raw: string): Line[] {
+export function splitLines(raw: string): Line[] {
   const lines: Line[] = [];
   const eol = /\r\n|\n|\r/g;
   let start = 0;
@@ -43,6 +43,16 @@ function splitLines(raw: string): Line[] {
 }
 
 const FENCE = /^ {0,3}(`{3,}|~{3,})/;
+
+// Fence state after `text`: the opening marker while inside a fenced block, else null.
+// A fence closes on the same character, at least as long, with nothing else on the line.
+export function nextFence(fence: string | null, text: string): string | null {
+  const f = FENCE.exec(text);
+  if (!f) return fence;
+  if (!fence) return f[1];
+  const closes = f[1][0] === fence[0] && f[1].length >= fence.length && !text.replace(FENCE, '').trim();
+  return closes ? null : fence;
+}
 const HEADING = /^(#{1,6})[ \t]+(.+?)[ \t]*$/;
 const INLINE_TAG = /(?:^|\s)#([\p{L}\p{N}_/-]+)/gu;
 // One pass so links come out in document order: [[x]] / ![[x]] / [t](x.md).
@@ -117,18 +127,9 @@ export function parseNote(raw: string, fileName: string): ParsedNote {
   let fence: string | null = null;
 
   for (const line of lines.slice(fm.bodyLine)) {
-    const f = FENCE.exec(line.text);
-    if (fence) {
-      // Closes on the same character, at least as long, nothing else on the line.
-      if (f && f[1][0] === fence[0] && f[1].length >= fence.length && !line.text.replace(FENCE, '').trim()) {
-        fence = null;
-      }
-      continue;
-    }
-    if (f) {
-      fence = f[1];
-      continue;
-    }
+    const wasInFence = fence !== null;
+    fence = nextFence(fence, line.text);
+    if (wasInFence || fence) continue; // fence lines and their contents are not syntax
 
     const h = HEADING.exec(line.text);
     if (h) {
