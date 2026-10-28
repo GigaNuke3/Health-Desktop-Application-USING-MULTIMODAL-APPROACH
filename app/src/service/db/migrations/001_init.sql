@@ -67,9 +67,10 @@ CREATE TABLE jobs (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
--- At most one unfinished job per note.
-CREATE UNIQUE INDEX idx_jobs_one_open_per_note
-  ON jobs(note_id) WHERE status IN ('queued', 'running');
+-- At most one queued job per note. A running job does not block a new queued one,
+-- so an edit during indexing queues a follow-up run.
+CREATE UNIQUE INDEX idx_jobs_one_queued_per_note
+  ON jobs(note_id) WHERE status = 'queued';
 
 CREATE TABLE conversations (
   id TEXT PRIMARY KEY,
