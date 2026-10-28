@@ -36,9 +36,7 @@ export class AppException extends Error {
 
 export function toAppError(e: unknown): AppError {
   if (e instanceof AppException) {
-    return e.hint === undefined
-      ? { code: e.code, message: e.message }
-      : { code: e.code, message: e.message, hint: e.hint };
+    return { code: e.code, message: e.message, hint: e.hint };
   }
   return { code: 'INTERNAL', message: 'Unexpected error' };
 }

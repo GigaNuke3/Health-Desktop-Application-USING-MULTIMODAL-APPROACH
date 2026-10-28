@@ -14,8 +14,6 @@ import type {
   Workspace,
 } from './types';
 
-export type { PublicMethod } from './ipc-names';
-
 const id = z.string().min(1);
 const noInput = z.undefined();
 const indexStatus = z.enum(['pending', 'indexed', 'failed', 'deleted', 'excluded']);

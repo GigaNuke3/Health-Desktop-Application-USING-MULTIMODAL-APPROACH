@@ -9,9 +9,10 @@ export function loadMigrations(): Migration[] {
     import: 'default',
     eager: true,
   }) as Record<string, string>;
-  return Object.entries(files)
-    .map(([file, sql]) => ({ version: parseInt(file.split('/').pop()!, 10), sql }))
-    .sort((a, b) => a.version - b.version);
+  return Object.entries(files).map(([file, sql]) => ({
+    version: parseInt(file.split('/').pop()!, 10),
+    sql,
+  }));
 }
 
 export function migrate(db: Database.Database, migrations: Migration[]): void {
