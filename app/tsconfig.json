@@ -3,6 +3,7 @@
     "target": "ESNext",
     "module": "preserve",
     "moduleResolution": "bundler",
+    "jsx": "react-jsx",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,

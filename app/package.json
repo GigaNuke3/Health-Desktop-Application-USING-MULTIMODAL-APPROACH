@@ -19,6 +19,7 @@
     "lint": "oxlint && oxfmt --check",
     "lint:fix": "oxlint --fix && oxfmt --write",
     "typecheck": "tsc --noEmit",
+    "postinstall": "electron-rebuild -f -o better-sqlite3",
     "test": "ELECTRON_RUN_AS_NODE=1 electron ./node_modules/vitest/vitest.mjs run"
   },
   "devDependencies": {
