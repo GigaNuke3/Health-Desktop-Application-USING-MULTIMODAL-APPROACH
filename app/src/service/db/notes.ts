@@ -3,6 +3,7 @@ import type Database from 'better-sqlite3';
 import type { IndexStatus, LibraryFilter, NoteSummary } from '../../shared/types';
 import type { KnownNote, ScanDiff } from '../vault/scan';
 import { enqueueIndex } from './jobs';
+import { deleteVectors } from './vectors';
 
 export interface NoteRow {
   id: string;
@@ -70,10 +71,12 @@ export function getNote(db: Database.Database, noteId: string): NoteRow | null {
   };
 }
 
-// Task 8 adds a vector delete here, before the chunks go (vectors are keyed by chunk id).
+// Vectors are keyed by chunk id, so they go before the chunks do.
 export function deleteNoteIndex(db: Database.Database, noteId: string): void {
   db.prepare('DELETE FROM links WHERE source_note_id = ?').run(noteId);
   db.prepare('UPDATE links SET target_note_id = NULL WHERE target_note_id = ?').run(noteId);
+  const chunkIds = db.prepare('SELECT id FROM chunks WHERE note_id = ?').all(noteId) as { id: number }[];
+  deleteVectors(db, chunkIds.map((c) => c.id));
   db.prepare('DELETE FROM chunks WHERE note_id = ?').run(noteId);
 }
 
